@@ -1,0 +1,16 @@
+{
+    "projectName": "Sosi",
+    "languages": [
+        {
+            "id": "sosi",
+            "grammar": "src/sosi.langium",
+            "fileExtensions": [
+                "sosi"
+            ],
+            "textMate": {
+                "out": "syntaxes/sosi.tmLanguage.json"
+            }
+        }
+    ],
+    "out": "src/generated"
+}
