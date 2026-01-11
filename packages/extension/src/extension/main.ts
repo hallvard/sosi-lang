@@ -1,6 +1,7 @@
-import type { LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node.js';
-import type * as vscode from 'vscode';
 import * as path from 'node:path';
+import { generatePlantumlAction } from 'sosi-cli/generator';
+import * as vscode from 'vscode';
+import type { LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node.js';
 import { LanguageClient, TransportKind } from 'vscode-languageclient/node.js';
 
 let client: LanguageClient;
@@ -8,6 +9,28 @@ let client: LanguageClient;
 // This function is called when the extension is activated.
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     client = await startLanguageClient(context);
+    
+    // Register PlantUML generation command
+    const generatePlantumlCommand = vscode.commands.registerCommand('sosi.generatePlantuml', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor || editor.document.languageId !== 'sosi') {
+            vscode.window.showErrorMessage('Please open a .sosi file');
+            return;
+        }
+
+        const filePath = editor.document.uri.fsPath;
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(editor.document.uri);
+        const destination = workspaceFolder?.uri.fsPath;
+                
+        try {
+            await generatePlantumlAction(filePath, { destination });
+            vscode.window.showInformationMessage(`PlantUML generated to ${destination}`);
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to generate PlantUML: ${error}`);
+        }
+    });
+    
+    context.subscriptions.push(generatePlantumlCommand);
 }
 
 // This function is called when the extension is deactivated.

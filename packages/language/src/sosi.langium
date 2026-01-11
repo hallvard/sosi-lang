@@ -6,9 +6,11 @@ Package: 'package' NamespaceFragment;
 Specification: 'specification' NamespaceFragment;
 
 fragment NamespaceFragment:
-  (description=STRING)? name = QName
+  (description=STRING)?
+  (tags += Tag)*
+  name = QName
   (imports += Import)*
-  (types += Type)*;
+  (types += TypeDef)*;
 
 Import:
   'import' namespace = [Namespace:QName];
@@ -18,15 +20,19 @@ Name returns string: (ID | STRING);
 QName returns string:
   Name ('.' Name)*;
 
-Type: BuiltinType | CompositeType;
+QName2 returns string:
+  Name ('.' Name)+;
+
+TypeDef: BuiltinType | CompositeType;
 
 CompositeType:
   (isAbstract ?= 'abstract')?
   (kind = ('data' | 'feature'))?
   'type'
   (description=STRING)?
+  (tags += Tag)*
   (name = Name)?
-  ('extends' (extends += [Type:QName]) (',' extends += [Type:QName])*)?
+  ('extends' (extends += [TypeDef:QName]) (',' extends += [TypeDef:QName])*)?
   '{'
     (properties += Property)+
   '}'
@@ -35,19 +41,26 @@ CompositeType:
 
 PropertyKind returns string: ('@' | '#' | '^');
 
-PropertyType: TypeRef | InlineType;
+PropertyType: TypeDef | TypeRef;
 
-TypeRef: typeRef = [Type:QName];
-InlineType: typeDef = Type;
+TypeRef: typeRef = [TypeDef:QName];
 
-Property:
-  (kind = PropertyKind)?
+Property: (PropertyDef | PropertyRef);
+
+PropertyDef:
   (description=STRING)?
+  (tags += Tag)*
+  (kind = PropertyKind)?
   name = Name
-  (multiplicity = Multiplicity)? ':'
+  (multiplicity = Multiplicity)?
+  ':'
   type = PropertyType
   (mappings += DomainMapping)*
   ;
+
+PropertyRef:
+  propertyRef = [PropertyDef:QName2]
+  (multiplicity = Multiplicity)?;
 
 Multiplicity: ZeroOrMoreMultiplicity | OneOrMoreMultiplicity | ZeroOrOneMultiplicity | SomeMultiplicity;
 
@@ -57,17 +70,33 @@ ZeroOrOneMultiplicity: spec = '?';
 SomeMultiplicity: lower = '[' INT ('..' (upper = INT)?) ']';
 
 BuiltinType:
-  'builtin' (name = Name)?
+  'builtin'
+  (description=STRING)?
+  (tags += Tag)*
+  name = Name
   (mappings += DomainMapping)*
   ;
 
 DomainMapping:
   'as' domain = QName target = (QName | STRING);
 
+Tag: tagName = QName ('!' | ('=' tagValue = LiteralValue));
+
+LiteralValue: StringValue | UuidValue | DateValue | TimeValue | DecimalValue | IntValue | NameValue;
+
+StringValue: value = STRING;
+UuidValue: value = UUID;
+DateValue: value = INT '-' INT '-' INT;
+TimeValue: value = INT ':' INT (':' INT)? ('.' INT)?;
+IntValue: value = INT;
+DecimalValue: value = INT '.' INT;
+NameValue: value = QName;
+
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;
-terminal INT returns number: /[0-9]+/;
 terminal STRING: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;
+terminal UUID: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
+terminal INT returns number: /[0-9]+/;
 
 hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
 hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;

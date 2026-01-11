@@ -1,16 +1,27 @@
-import type { Property, Type, Specification } from 'sosi-language';
-import { isBuiltinType, isCompositeType, isInlineType } from 'sosi-language';
+import type { Property, TypeDef, Specification } from 'sosi-language';
+import { createSosiServices, isBuiltinType, isCompositeType, isPropertyDef, isTypeDef } from 'sosi-language';
 import { expandToNode, Generated, joinToNode, toString } from 'langium/generate';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { extractDestinationAndName } from './util.js';
-import { typeName } from '../../language/src/sosi-utils.js';
+import { extractAstNode, extractDestinationAndName } from './util.js';
+import { NodeFileSystem } from 'langium/node';
+import { propertyName, propertyType, propertyTypeName, typeName } from 'sosi-language/sosi-utils';
+
+export type PlantumlGenerateOptions = {
+    destination?: string;
+}
+
+export const generatePlantumlAction = async (fileName: string, opts: PlantumlGenerateOptions): Promise<void> => {
+    const services = createSosiServices(NodeFileSystem).Sosi;
+    const spec = await extractAstNode<Specification>(fileName, services);
+    generatePlantuml(spec, fileName, opts.destination);
+};
 
 export function generatePlantuml(spec: Specification, filePath: string, destination: string | undefined): string {
   const data = extractDestinationAndName(filePath, destination);
   const generatedFilePath = `${path.join(data.destination, data.name)}.puml`;
 
-  const allTypes = new Map<string, Type>();
+  const allTypes = new Map<string, TypeDef>();
   for (const type of spec.types) {
     addTypes(type, allTypes);
   }
@@ -37,12 +48,12 @@ export function generatePlantuml(spec: Specification, filePath: string, destinat
   return generatedFilePath;
 }
 
-function addTypes(type: Type, allTypes: Map<string, Type>): void {
+function addTypes(type: TypeDef, allTypes: Map<string, TypeDef>): void {
   allTypes.set(typeName(type), type);
   if (isCompositeType(type)) {
     for (const prop of type.properties) {
-      if (isInlineType(prop.type)) {
-        addTypes(prop.type.typeDef, allTypes);
+      if (isPropertyDef(prop) && isTypeDef(prop.type)) {
+        addTypes(prop.type, allTypes);
       }
     }
   }
@@ -68,7 +79,7 @@ interface PlantumlRelation {
   label: string;
 }
 
-function plantumlClassForType(type: Type): PlantumlClass | undefined {
+function plantumlClassForType(type: TypeDef): PlantumlClass | undefined {
   if (isCompositeType(type)) {
     return {
       name: typeName(type),
@@ -86,14 +97,14 @@ function plantumlPropertyForProperty(prop: Property): PlantumlProperty | undefin
   const propType = propertyType(prop);
   if (isBuiltinType(propType) || (isCompositeType(propType) && 'data' == propType.kind)) {
     return {
-      name: prop.name,
+      name: propertyName(prop),
       type: propertyTypeName(prop)
     }
   }
   return undefined
 }
 
-function plantumRelationsForType(type: Type): PlantumlRelation[] | undefined {
+function plantumRelationsForType(type: TypeDef): PlantumlRelation[] | undefined {
   if (isCompositeType(type)) {
     return type.properties
         .map(plantumlRelationForProperty)
@@ -110,7 +121,7 @@ function plantumlRelationForProperty(prop: Property): PlantumlRelation | undefin
       sourceLabel: undefined,
       target: propertyTypeName(prop),
       targetLabel: undefined,
-      label: prop.name
+      label: propertyName(prop)
     }
   }
   return undefined
@@ -129,15 +140,4 @@ function plantumlForProperty(prop: PlantumlProperty): Generated {
 
 function plantumlForRelation(rel: PlantumlRelation): Generated {
   return expandToNode`${rel.source} ${rel.sourceLabel} *-> ${rel.targetLabel} ${rel.target}: ${rel.label}`
-}
-
-function propertyType(prop: Property): Type | undefined {
-  if (isInlineType(prop.type)) {
-    return prop.type.typeDef;
-  }
-  return prop.type.typeRef.ref!;
-}
-
-function propertyTypeName(prop: Property): string {
-    return propertyType(prop)?.name ?? "unknown";
 }

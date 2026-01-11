@@ -1,0 +1,10 @@
+package sosi.lib
+
+builtin long as java long
+builtin string as java java.lang.String
+
+data type Identifikasjon {
+  id : string
+  namespace? : string
+  version? : long
+}

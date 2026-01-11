@@ -14,6 +14,7 @@
     "main": "./out/index.js",
     "module": "./out/index.js",
     "exports": {
+        "./sosi-utils": "./out/sosi-utils.js",
         ".": {
             "types": "./out/index.d.ts",
             "default": "./out/index.js"

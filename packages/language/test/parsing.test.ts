@@ -22,20 +22,24 @@ describe('Parsing tests', () => {
 
     test('parse Specification', async () => {
         document = await parse(`
-            specification ngu.nadag
+            specification
+            "Nadag model" version=1.0
+            ngu.nadag
 
-            builtin String as java String
+            builtin "Native String" String as java java.lang.String
             builtin Timestamp as java long
             builtin Posisjon as java geo.Geometry
             builtin Areal as java geo.Geometry
 
-            data type Id {
+            data type
+                "Identifikasjon" versionDate=2025-01-01 version=1.0
+                Id
+            {
                 "Navnet"
-                name : String as java java.util.StringBuilder
+                name: String as java java.util.StringBuilder
 
                 "Gjør navnet unikt"
-                namespace : String
-
+                namespace: String
                 "Versjonen er monotont økende, f.eks. et tidsstempel"
                 version: Timestamp
             }

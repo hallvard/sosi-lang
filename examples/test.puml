@@ -1,0 +1,4 @@
+@startuml "ngu.nadag"
+class GeotekniskUnders {
+}
+@enduml

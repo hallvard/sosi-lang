@@ -1,0 +1,7 @@
+specification ngu.nadag
+
+import sosi.lib
+
+type GeotekniskUnders {
+  # identifikasjon : Identifikasjon
+}
