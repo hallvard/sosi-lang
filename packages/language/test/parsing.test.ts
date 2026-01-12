@@ -22,14 +22,18 @@ describe('Parsing tests', () => {
 
     test('parse Specification', async () => {
         document = await parse(`
-            specification "Nadag model"
+            specification "Datamodell for NADAG"
             ngu.nadag
             $version=1.0
 
-            builtin "Native String" String as java java.lang.String
-            builtin Timestamp as java long
+            builtin "Native String" string as java java.lang.String
+            builtin long as java long
+
             builtin Posisjon as java geo.Geometry
             builtin Areal as java geo.Geometry
+            builtin DateTime as java java.time.LocalDateTime
+            builtin Date as java java.time.LocalDate
+            builtin UUID as java java.util.UUID
 
             codelist Kode {
                 UKJENT = 0
@@ -42,21 +46,33 @@ describe('Parsing tests', () => {
                 Id
                 $versionDate=2025-01-01 $version=1.0
             {
-                "Navnet"
-                name: String as java java.util.StringBuilder
+                "Unik innen navnerom"
+                lokalId: UUID // velger likevel UUID
 
                 "Gjør navnet unikt"
-                namespace: String
+                namespace: string
                 "Versjonen er monotont økende, f.eks. et tidsstempel"
-                version: Timestamp
+                version: long
             }
 
-            type GU {
+            type Entitet {
               # id: Id
+              opprettetDato: DateTime
+              sistEndretDato: DateTime
+            }
+
+            type StedfestetEntitet extends Entitet {
+              @ posisjon: Posisjon
+            }
+
+            type GU extends Entitet{
+              Entitet.id
               @ "område": Areal
+              status: Kode
               borehull*: type GB {
-                # id: Id
-                @ posisjon: Posisjon 
+                Entitet.id
+                Entitet.opprettetDato
+                StedfestetEntitet.Posisjon
               }
             }
         `);
