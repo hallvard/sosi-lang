@@ -31,12 +31,11 @@ CompositeType:
   'type'
   (description=STRING)?
   (name = Name)?
-  ('extends' (extends += [TypeDef:QName]) (',' extends += [TypeDef:QName])*)?
+  ('extends' (extends += [CompositeType:QName]) (',' extends += [CompositeType:QName])*)?
   (tags += Tag)*
   '{'
     (properties += Property)+
   '}'
-  (mappings += DomainMapping)*
   ;
 
 PropertyKind returns string: ('@' | '#' | '^');
@@ -54,7 +53,6 @@ PropertyDef:
   (multiplicity = Multiplicity)?
   ':'
   type = PropertyType
-  (mappings += DomainMapping)*
   (tags += Tag)*
   ;
 
@@ -100,7 +98,7 @@ EnumProperty:
 
 EnumValue: StringValue | IntValue | NameValue;
 
-Tag: tagName = '$' QName ('!'? | ('=' tagValue = LiteralValue));
+Tag: name = '$' QName ('!'? | ('=' value = LiteralValue));
 
 LiteralValue: StringValue | UuidValue | DateValue | TimeValue | DecimalValue | IntValue | NameValue;
 
