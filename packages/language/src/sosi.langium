@@ -106,10 +106,19 @@ LiteralValue: StringValue | UuidValue | DateValue | TimeValue | DecimalValue | I
 
 StringValue: value = STRING;
 UuidValue: value = UUID;
-DateValue: value = INT '-' INT '-' INT;
-TimeValue: value = INT ':' INT (':' INT)? ('.' INT)?;
-IntValue: value = INT;
-DecimalValue: value = INT '.' INT;
+
+DateValue: value = DateLiteral;
+DateLiteral returns Date: INT '-' INT '-' INT;
+
+TimeValue: value = TimeLiteral;
+TimeLiteral returns Date: INT ':' INT (':' INT)? ('.' INT)?;
+
+IntValue: value = IntLiteral;
+IntLiteral returns number: INT;
+
+DecimalValue: value = DecimalLiteral;
+DecimalLiteral returns number: INT '.' INT;
+
 NameValue: value = QName;
 
 hidden terminal WS: /\s+/;

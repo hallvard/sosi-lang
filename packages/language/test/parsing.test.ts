@@ -44,7 +44,7 @@ describe('Parsing tests', () => {
             data type
                 "Identifikasjon"
                 Id
-                $versionDate=2025-01-01 $version=1.0
+                $version=1.0 $versionDate=2025-01-01 $versionTime=12:40:02.007
             {
                 "Unik innen navnerom"
                 lokalId: UUID // velger likevel UUID

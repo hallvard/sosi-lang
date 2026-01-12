@@ -2,6 +2,7 @@ import { type Module, inject } from 'langium';
 import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
 import { SosiGeneratedModule, SosiGeneratedSharedModule } from './generated/module.js';
 import { SosiValidator, registerValidationChecks } from './sosi-validator.js';
+import { SosiValueConverter } from './sosi-value-converter.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -24,6 +25,9 @@ export type SosiServices = LangiumServices & SosiAddedServices
  * selected services, while the custom services must be fully specified.
  */
 export const SosiModule: Module<SosiServices, PartialLangiumServices & SosiAddedServices> = {
+    parser: {
+        ValueConverter: () => new SosiValueConverter()
+    },
     validation: {
         SosiValidator: () => new SosiValidator()
     }
