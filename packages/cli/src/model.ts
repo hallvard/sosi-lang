@@ -40,9 +40,12 @@ export interface Property extends ModelElement {
   defaultValue?: string | number | Date | boolean;
 }
 
-export interface TypeRef<T extends SosiType = SosiType> {
+export interface Ref<T extends ModelElement = ModelElement> {
   qname: QName;
   type: T;
+}
+
+export interface TypeRef<T extends SosiType = SosiType> extends Ref<T> {
 }
 
 export interface Multiplicity {
