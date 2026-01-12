@@ -22,18 +22,25 @@ describe('Parsing tests', () => {
 
     test('parse Specification', async () => {
         document = await parse(`
-            specification
-            "Nadag model" version=1.0
+            specification "Nadag model"
             ngu.nadag
+            $version=1.0
 
             builtin "Native String" String as java java.lang.String
             builtin Timestamp as java long
             builtin Posisjon as java geo.Geometry
             builtin Areal as java geo.Geometry
 
+            codelist Kode {
+                UKJENT = 0
+                AKTIV = 1
+                INAKTIV = 2
+            }
+
             data type
-                "Identifikasjon" versionDate=2025-01-01 version=1.0
+                "Identifikasjon"
                 Id
+                $versionDate=2025-01-01 $version=1.0
             {
                 "Navnet"
                 name: String as java java.util.StringBuilder

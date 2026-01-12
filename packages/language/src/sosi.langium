@@ -7,8 +7,8 @@ Specification: 'specification' NamespaceFragment;
 
 fragment NamespaceFragment:
   (description=STRING)?
-  (tags += Tag)*
   name = QName
+  (tags += Tag)*
   (imports += Import)*
   (types += TypeDef)*;
 
@@ -23,16 +23,16 @@ QName returns string:
 QName2 returns string:
   Name ('.' Name)+;
 
-TypeDef: BuiltinType | CompositeType;
+TypeDef: BuiltinType | CompositeType | EnumType;
 
 CompositeType:
   (isAbstract ?= 'abstract')?
   (kind = ('data' | 'feature'))?
   'type'
   (description=STRING)?
-  (tags += Tag)*
   (name = Name)?
   ('extends' (extends += [TypeDef:QName]) (',' extends += [TypeDef:QName])*)?
+  (tags += Tag)*
   '{'
     (properties += Property)+
   '}'
@@ -49,13 +49,13 @@ Property: (PropertyDef | PropertyRef);
 
 PropertyDef:
   (description=STRING)?
-  (tags += Tag)*
   (kind = PropertyKind)?
   name = Name
   (multiplicity = Multiplicity)?
   ':'
   type = PropertyType
   (mappings += DomainMapping)*
+  (tags += Tag)*
   ;
 
 PropertyRef:
@@ -72,15 +72,35 @@ SomeMultiplicity: lower = '[' INT ('..' (upper = INT)?) ']';
 BuiltinType:
   'builtin'
   (description=STRING)?
-  (tags += Tag)*
   name = Name
   (mappings += DomainMapping)*
+  (tags += Tag)*
   ;
 
 DomainMapping:
   'as' domain = QName target = (QName | STRING);
 
-Tag: tagName = QName ('!' | ('=' tagValue = LiteralValue));
+EnumType:
+  'codelist'
+  (description=STRING)?
+  (tags += Tag)*
+  name = Name
+  (mappings += DomainMapping)*
+  '{'
+    (properties += EnumProperty)+
+  '}'
+  ;
+
+EnumProperty:
+  (description=STRING)?
+  name = Name
+  ('=' label = EnumValue)?
+  (tags += Tag)*
+  ;
+
+EnumValue: StringValue | IntValue | NameValue;
+
+Tag: tagName = '$' QName ('!'? | ('=' tagValue = LiteralValue));
 
 LiteralValue: StringValue | UuidValue | DateValue | TimeValue | DecimalValue | IntValue | NameValue;
 
