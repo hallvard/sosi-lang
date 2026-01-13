@@ -30,7 +30,7 @@ CompositeType:
   (kind = ('data' | 'feature'))?
   'type'
   (description=STRING)?
-  (name = Name)?
+  name = Name
   ('extends' (extends += [CompositeType:QName]) (',' extends += [CompositeType:QName])*)?
   (tags += Tag)*
   '{'
@@ -38,7 +38,7 @@ CompositeType:
   '}'
   ;
 
-PropertyKind returns string: ('@' | '#' | '^');
+PropertyKind returns string: ('@' | '#' | '^' | '>');
 
 PropertyType: TypeDef | TypeRef;
 
@@ -65,7 +65,7 @@ Multiplicity: ZeroOrMoreMultiplicity | OneOrMoreMultiplicity | ZeroOrOneMultipli
 ZeroOrMoreMultiplicity: spec = '*';
 OneOrMoreMultiplicity: spec = '+';
 ZeroOrOneMultiplicity: spec = '?';
-SomeMultiplicity: lower = '[' INT ('..' (upper = INT)?) ']';
+SomeMultiplicity: '[' lower = IntLiteral ('..' (upper = IntLiteral)?) ']';
 
 BuiltinType:
   'builtin'
@@ -92,7 +92,7 @@ EnumType:
 EnumProperty:
   (description=STRING)?
   name = Name
-  ('=' label = EnumValue)?
+  ('=' value = EnumValue)?
   (tags += Tag)*
   ;
 
@@ -120,7 +120,7 @@ DecimalLiteral returns number: INT '.' INT;
 NameValue: value = QName;
 
 hidden terminal WS: /\s+/;
-terminal ID: /[_a-zA-Z][\w_]*/;
+terminal ID: /[\p{L}_][\p{L}\0-9_]*/u;
 terminal STRING: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;
 terminal UUID: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
 terminal INT returns number: /[0-9]+/;

@@ -1,9 +1,18 @@
 export type QName = string[];
 
 interface ModelElement {
+  entityType: string;
   name: QName;
   description?: string;
   tags: Tag[];
+}
+
+export function isA(element: ModelElement, entityType: string): boolean {
+  return element.entityType === entityType;
+}
+
+export function nameString(name: QName): string {
+  return name.join('.');
 }
 
 export interface Tag {
@@ -16,24 +25,30 @@ interface Namespace extends ModelElement {
 }
 
 export interface SosiSpecification extends Namespace {
+  entityType: 'specification';
 }
 
 export interface SosiPackage extends Namespace {
+  entityType: 'package';
 }
 
 export interface SosiType extends ModelElement {
 }
 
+export type CompositeTypeKind = 'data' | 'feature';
+
 export interface CompositeType extends SosiType {
+  entityType: 'compositeType';
   isAbstract: boolean;
-  isFeature: boolean;
+  kind: CompositeTypeKind;
   superTypes: TypeRef<CompositeType>[];
-  properties: Property[];
+  properties: CompositeTypeProperty[];
 }
 
 export type PropertyKind = 'id' | 'geometry' | 'association' | 'containment' | 'container';
 
-export interface Property extends ModelElement {
+export interface CompositeTypeProperty extends ModelElement {
+  entityType: 'compositeTypeProperty';
   kind: PropertyKind;
   type: TypeRef<SosiType>;
   multiplicity: Multiplicity;
@@ -42,7 +57,7 @@ export interface Property extends ModelElement {
 
 export interface Ref<T extends ModelElement = ModelElement> {
   qname: QName;
-  type: T;
+  element: T | undefined;
 }
 
 export interface TypeRef<T extends SosiType = SosiType> extends Ref<T> {
@@ -54,6 +69,7 @@ export interface Multiplicity {
 }
 
 export interface BuiltinType extends SosiType {
+  entityType: 'builtinType';
   mappings: DomainMapping[];
 }
 
@@ -63,9 +79,12 @@ export interface DomainMapping {
 }
 
 export interface EnumType extends SosiType {
+  entityType: 'enumType';
   properties: EnumProperty[];
+  mappings: DomainMapping[];
 }
 
 export interface EnumProperty extends ModelElement {
-  value: string | number;
+  entityType: 'enumProperty';
+  value: string | number | undefined;
 }
