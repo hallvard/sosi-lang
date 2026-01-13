@@ -21,7 +21,7 @@ export const generatePlantumlAction = async (fileName: string, opts: PlantumlGen
 export function generatePlantuml(spec: Specification, filePath: string, destination: string | undefined): string {
 
   const sosiSpec = buildSpecification(spec); // ensure that all types are built before generating UML
-  console.log(sosiSpec);
+  console.dir(sosiSpec, { depth: 6 });
 
   const data = extractDestinationAndName(filePath, destination);
   const generatedFilePath = `${path.join(data.destination, data.name)}.puml`;

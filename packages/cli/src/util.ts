@@ -16,9 +16,20 @@ export async function extractDocument(fileName: string, services: LangiumCoreSer
         process.exit(1);
     }
 
-    const document = await services.shared.workspace.LangiumDocuments.getOrCreateDocument(URI.file(path.resolve(fileName)));
-    await services.shared.workspace.DocumentBuilder.build([document], { validation: true });
+    // Load all .sosi files in the same directory for cross-file linking
+    const dirPath = path.dirname(path.resolve(fileName));
+    const allFiles = fs.readdirSync(dirPath)
+        .filter(fileName => extensions.includes(path.extname(fileName)))
+        .map(fileName => URI.file(path.join(dirPath, fileName)));
 
+    const documents = await Promise.all(
+        allFiles.map(uri => services.shared.workspace.LangiumDocuments.getOrCreateDocument(uri))
+    );
+  
+    await services.shared.workspace.DocumentBuilder.build(documents, { validation: true });
+
+    const document = services.shared.workspace.LangiumDocuments.getDocument(URI.file(path.resolve(fileName)))!;
+    
     const validationErrors = (document.diagnostics ?? []).filter(e => e.severity === 1);
     if (validationErrors.length > 0) {
         console.error(chalk.red('There are validation errors:'));

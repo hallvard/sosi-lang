@@ -1,4 +1,4 @@
-import { AstNode, AstNodeDescription, AstUtils, DefaultScopeComputation, DefaultScopeProvider, DocumentSegment, LangiumDocument, MultiMap, PrecomputedScopes, ReferenceInfo, Scope, Stream, URI } from "langium";
+import { AstNode, AstNodeDescription, AstUtils, DefaultScopeComputation, DefaultScopeProvider, DocumentSegment, LangiumDocument, LocalSymbols, MultiMap, ReferenceInfo, Scope, stream, Stream, URI } from "langium";
 import { isNamespace, Namespace } from "./generated/ast.js";
 import { typeName } from "./sosi-utils.js";
 
@@ -11,7 +11,7 @@ export class SosiScopeComputation extends DefaultScopeComputation {
    * @param document The document to compute exports for
    * @returns The list of exported descriptions
    */
-  override async computeExports(document: LangiumDocument): Promise<AstNodeDescription[]> {
+  override async collectExportedSymbols(document: LangiumDocument): Promise<AstNodeDescription[]> {
     const exportedDescriptions: AstNodeDescription[] = [];
     const namespace = document.parseResult.value as Namespace;
     const rootName = namespace.name;
@@ -29,7 +29,7 @@ export class SosiScopeComputation extends DefaultScopeComputation {
    * @param document The document to compute scopes for
    * @returns the scopes for the document
    */
-  override async computeLocalScopes(document: LangiumDocument): Promise<PrecomputedScopes> {
+  override async collectLocalSymbols(document: LangiumDocument): Promise<LocalSymbols> {
     const ns = document.parseResult.value as Namespace;
     // This multi-map stores a list of descriptions for each node in our document
     const scopes = new MultiMap<AstNode, AstNodeDescription>();
@@ -60,6 +60,7 @@ export class SosiScopeProvider extends DefaultScopeProvider {
 }
 
 class ScopeWithPrefixes implements Scope {
+
   constructor(readonly prefixes: string[], readonly delegate: Scope) {
   }
 
@@ -83,21 +84,15 @@ class ScopeWithPrefixes implements Scope {
     return element;
   }
 
+  /**
+   * Find all elements with all the prefixes applied.
+   *
+   * @param name The name of the element to look up
+   * @returns 
+   */
   getElements(name: string): Stream<AstNodeDescription> {
-    const allElements = this.delegate.getAllElements();
-    return allElements.flatMap(element => {
-      const name = element.name;
-      var unprefixedName = undefined
-      for (const prefix of this.prefixes) {
-        if (name.startsWith(prefix)) {
-          unprefixedName = name.substring(prefix.length);
-          break;
-        }
-      }
-      return unprefixedName
-          ? [element, new AstNodeDescriptionWithAltName(element, unprefixedName)]
-          : element;
-    })
+    return stream([ '', ...this.prefixes ])
+        .flatMap(prefix => this.delegate.getElements(`${prefix}${name}`));
   }
 
   getAllElements(): Stream<AstNodeDescription> {

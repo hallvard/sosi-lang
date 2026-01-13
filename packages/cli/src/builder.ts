@@ -1,4 +1,5 @@
-import { BuiltinType, CompositeType, DomainMapping, EnumType, isBuiltinType, isCompositeType, isEnumType, isNamespace, isOneOrMoreMultiplicity, isPropertyDef, isPropertyRef, isSomeMultiplicity, isTypeDef, isTypeRef, isZeroOrOneMultiplicity, Multiplicity, Property, Specification, Tag, TypeDef } from "sosi-language";
+import { BuiltinType, CompositeType, DomainMapping, EnumType, isBuiltinType, isCompositeType, isEnumType, isNamespace, isOneOrMoreMultiplicity, isPropertyRef, isSomeMultiplicity, isTypeDef, isTypeRef, isZeroOrOneMultiplicity, Multiplicity, Property, Specification, Tag, TypeDef } from "sosi-language";
+import { propertyName } from "sosi-language/sosi-utils";
 import {
   BuiltinType as BuiltinSosiType,
   CompositeType as CompositeSosiType,
@@ -23,7 +24,7 @@ function typeQname(type: TypeDef): string[] {
   while (! isNamespace(parent)) {
     parent = parent.$container.$container;
   }
-  return [...parent.name, type.name];
+  return [parent.name, type.name];
 }
 
 export function buildSpecification(spec: Specification): SosiSpecification {
@@ -49,6 +50,7 @@ function buildTags(tags: Tag[]): SosiTag[] {
 }
 
 function buildType(type: TypeDef, context: BuilderContext): SosiType {
+  console.log("Processing type: " + nameString(typeQname(type)));
   if (isBuiltinType(type)) {
     return buildBuiltinType(type);
   } else if (isEnumType(type)) {
@@ -61,6 +63,7 @@ function buildType(type: TypeDef, context: BuilderContext): SosiType {
 
 function buildReferencedType<T extends TypeDef>(type: TypeDef, context: BuilderContext): SosiType {
   const qnameString = nameString(typeQname(type));
+  console.log("Processing referenced type: " + qnameString);
   if (! context.typeMap.has(qnameString)) {
     const sosiType = buildType(type, context);
     context.typeMap.set(qnameString, sosiType);
@@ -71,8 +74,8 @@ function buildReferencedType<T extends TypeDef>(type: TypeDef, context: BuilderC
 function buildCompositeType(type: CompositeType, context: BuilderContext): CompositeSosiType {
   const superTypes = new Array<CompositeSosiType>
   for (const ref of type.extends) {
-    if (isTypeDef(ref.$refNode)) {
-      const sosiType = buildReferencedType(ref.$refNode, context);
+    if (isTypeDef(ref.ref)) {
+      const sosiType = buildReferencedType(ref.ref, context);
       if (isA(sosiType, 'compositeType')) {
         superTypes.push(sosiType as CompositeSosiType);
       }
@@ -96,23 +99,19 @@ function buildCompositeType(type: CompositeType, context: BuilderContext): Compo
 }
 
 function buildCompositeTypeProperty(prop: Property, context: BuilderContext): CompositeTypeProperty {
+  console.log("...processing property: " + propertyName(prop));
   if (isPropertyRef(prop)) {
     const refType = prop.propertyRef.ref!;
     return buildCompositeTypeProperty(refType, context);
-  } else if (isPropertyDef(prop)) {
+  } else {
     var propType: SosiType | null = null;
-    console.log("Property " + prop.name + ": " + prop);
     if (isTypeRef(prop.type)) {
-      console.log("Property " + prop.name + "'s type: " + prop.type.typeRef.$refNode);
-      // console.log("Property " + prop.name + "'s type: " + typeQname(prop.type.typeRef.$refNode));
-      if (isTypeDef(prop.type.typeRef.$refNode)) {
-        propType = buildReferencedType(prop.type.typeRef.$refNode, context);
+      if (isTypeDef(prop.type.typeRef.ref)) {
+        propType = buildReferencedType(prop.type.typeRef.ref, context);
       }
     } else if (isTypeDef(prop.type)) {
       propType = buildType(prop.type, context);
-      console.log("Property " + prop.name + "'s type: " + typeQname(prop.type));
     }
-    console.log("Property " + prop.name + "'s type: " + propType);
     var kind: PropertyKind = 'containment';
     if (prop.kind == '@') {
       kind = 'geometry';

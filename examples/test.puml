@@ -1,9 +1,4 @@
 @startuml "ngu.nadag"
-class Identifikasjon {
-    id: string
-    namespace: string
-    version: long
-}
 class GeotekniskUnders {
     identifikasjon: Identifikasjon
 }
