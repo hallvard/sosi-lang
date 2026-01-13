@@ -3,6 +3,7 @@ import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModul
 import { SosiGeneratedModule, SosiGeneratedSharedModule } from './generated/module.js';
 import { SosiValidator, registerValidationChecks } from './sosi-validator.js';
 import { SosiValueConverter } from './sosi-value-converter.js';
+import { SosiScopeComputation, SosiScopeProvider } from './sosi-scoping.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -25,12 +26,17 @@ export type SosiServices = LangiumServices & SosiAddedServices
  * selected services, while the custom services must be fully specified.
  */
 export const SosiModule: Module<SosiServices, PartialLangiumServices & SosiAddedServices> = {
-    parser: {
-        ValueConverter: () => new SosiValueConverter()
-    },
-    validation: {
-        SosiValidator: () => new SosiValidator()
-    }
+  parser: {
+    ValueConverter: () => new SosiValueConverter()
+  },
+  validation: {
+    SosiValidator: () => new SosiValidator()
+  },
+  references: {
+    ScopeComputation: (services) => new SosiScopeComputation(services),
+    ScopeProvider: (services) => new SosiScopeProvider(services),
+  // Linker: (services) => new SosiLinker(services)
+  }
 };
 
 /**

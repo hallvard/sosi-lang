@@ -1,4 +1,4 @@
-import { BuiltinType, CompositeType, DomainMapping, EnumType, isBuiltinType, isCompositeType, isEnumType, isOneOrMoreMultiplicity, isPropertyDef, isPropertyRef, isSomeMultiplicity, isTypeDef, isZeroOrOneMultiplicity, Multiplicity, Property, Specification, Tag, TypeDef } from "sosi-language";
+import { BuiltinType, CompositeType, DomainMapping, EnumType, isBuiltinType, isCompositeType, isEnumType, isNamespace, isOneOrMoreMultiplicity, isPropertyDef, isPropertyRef, isSomeMultiplicity, isTypeDef, isTypeRef, isZeroOrOneMultiplicity, Multiplicity, Property, Specification, Tag, TypeDef } from "sosi-language";
 import {
   BuiltinType as BuiltinSosiType,
   CompositeType as CompositeSosiType,
@@ -19,7 +19,11 @@ interface BuilderContext {
 }
 
 function typeQname(type: TypeDef): string[] {
-  return type.name.split('.');
+  var parent = type.$container;
+  while (! isNamespace(parent)) {
+    parent = parent.$container.$container;
+  }
+  return [...parent.name, type.name];
 }
 
 export function buildSpecification(spec: Specification): SosiSpecification {
@@ -97,11 +101,18 @@ function buildCompositeTypeProperty(prop: Property, context: BuilderContext): Co
     return buildCompositeTypeProperty(refType, context);
   } else if (isPropertyDef(prop)) {
     var propType: SosiType | null = null;
-    if (isTypeDef(prop.type)) {
-      propType = buildReferencedType(prop.type, context);
+    console.log("Property " + prop.name + ": " + prop);
+    if (isTypeRef(prop.type)) {
+      console.log("Property " + prop.name + "'s type: " + prop.type.typeRef.$refNode);
+      // console.log("Property " + prop.name + "'s type: " + typeQname(prop.type.typeRef.$refNode));
+      if (isTypeDef(prop.type.typeRef.$refNode)) {
+        propType = buildReferencedType(prop.type.typeRef.$refNode, context);
+      }
     } else if (isTypeDef(prop.type)) {
       propType = buildType(prop.type, context);
+      console.log("Property " + prop.name + "'s type: " + typeQname(prop.type));
     }
+    console.log("Property " + prop.name + "'s type: " + propType);
     var kind: PropertyKind = 'containment';
     if (prop.kind == '@') {
       kind = 'geometry';

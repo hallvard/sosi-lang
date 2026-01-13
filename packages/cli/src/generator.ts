@@ -6,6 +6,7 @@ import * as path from 'node:path';
 import { extractAstNode, extractDestinationAndName } from './util.js';
 import { NodeFileSystem } from 'langium/node';
 import { propertyName, propertyType, propertyTypeName, typeName } from 'sosi-language/sosi-utils';
+import { buildSpecification } from './builder.js';
 
 export type PlantumlGenerateOptions = {
     destination?: string;
@@ -18,6 +19,10 @@ export const generatePlantumlAction = async (fileName: string, opts: PlantumlGen
 };
 
 export function generatePlantuml(spec: Specification, filePath: string, destination: string | undefined): string {
+
+  const sosiSpec = buildSpecification(spec); // ensure that all types are built before generating UML
+  console.log(sosiSpec);
+
   const data = extractDestinationAndName(filePath, destination);
   const generatedFilePath = `${path.join(data.destination, data.name)}.puml`;
 

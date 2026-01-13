@@ -120,7 +120,7 @@ DecimalLiteral returns number: INT '.' INT;
 NameValue: value = QName;
 
 hidden terminal WS: /\s+/;
-terminal ID: /[\p{L}_][\p{L}\0-9_]*/u;
+terminal ID: /[\p{L}][\p{L}0-9_]*/u;
 terminal STRING: /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'/;
 terminal UUID: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
 terminal INT returns number: /[0-9]+/;
