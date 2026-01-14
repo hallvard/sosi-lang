@@ -2,15 +2,12 @@ specification ngu.nadag
 
 import sosi.lib
 
-//builtin long as java long
-//builtin string as java java.lang.String
-
-//data type Identifikasjon {
-//  id : string
-//  namespace? : string
-//  version? : long
-//}
-
 type GeotekniskUnders {
   # identifikasjon : Identifikasjon
+  @ område: Areal
+  borehull*: type GB {
+    # identifikasjon : Identifikasjon
+    opprettetDato: Date
+    @ posisjon: Posisjon
+  }
 }

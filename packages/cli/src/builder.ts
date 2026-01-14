@@ -5,7 +5,7 @@ import {
   CompositeType as CompositeSosiType,
   CompositeTypeProperty,
   EnumType as EnumSosiType,
-  isA,
+  isCompositeType as isCompositeSosiType,
   nameString,
   PropertyKind,
   DomainMapping as SosiDomainMapping,
@@ -76,8 +76,8 @@ function buildCompositeType(type: CompositeType, context: BuilderContext): Compo
   for (const ref of type.extends) {
     if (isTypeDef(ref.ref)) {
       const sosiType = buildReferencedType(ref.ref, context);
-      if (isA(sosiType, 'compositeType')) {
-        superTypes.push(sosiType as CompositeSosiType);
+      if (isCompositeSosiType(sosiType)) {
+        superTypes.push(sosiType);
       }
     }
   }

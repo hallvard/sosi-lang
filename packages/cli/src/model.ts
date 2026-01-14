@@ -11,8 +11,28 @@ export function isA(element: ModelElement, entityType: string): boolean {
   return element.entityType === entityType;
 }
 
+export function isCompositeType(element?: ModelElement): element is CompositeType {
+  return element !== undefined && isA(element, 'compositeType');
+}
+
+export function isBuiltinType(element?: ModelElement): element is BuiltinType {
+  return element !== undefined && isA(element, 'builtinType');
+}
+
+export function isEnumType(element?: ModelElement): element is EnumType {
+  return element !== undefined && isA(element, 'enumType');
+}
+
 export function nameString(name: QName): string {
   return name.join('.');
+}
+
+export function name(modelElement: ModelElement): string {
+  return nameString(modelElement.name);
+}
+
+export function simpleName(modelElement: ModelElement): string {
+  return modelElement.name[modelElement.name.length - 1];
 }
 
 export interface Tag {

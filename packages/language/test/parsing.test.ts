@@ -65,7 +65,7 @@ describe('Parsing tests', () => {
               @ posisjon: Posisjon
             }
 
-            type GU extends Entitet{
+            type GU extends Entitet {
               Entitet.id
               @ "område": Areal
               status: Kode
