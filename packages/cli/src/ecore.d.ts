@@ -15,57 +15,28 @@ declare module 'ecore' {
       create(): ResourceSet;
     }
   
-    const EClass: {
-      create(eClass: IClass): EClass
-    }
+    export type EObjectFactory<T = IClass> = {
+      create(eClass: IClass): EObject<IClass>;
+    };
 
-    const EPackage: {
-      create(ePackage: IPackage): EPackage
-    }
-
-    const EDataType: {
-      create(eDataType: IDataType): EDataType
-    }
-
-    const EEnum: {
-      create(eEnum: IEnum): EEnum
-    }
-
-    const EEnumLiteral: {
-      create(eEnumLiteral: IEnumLiteral): EEnumLiteral
-    }
-
-    const EAttribute: {
-      create(eAttribute: IAttribute): EAttribute
-    }
-
-    const EReference: {
-      create(eReference: IReference): EReference
-    }
-
-    const EOperation: {
-      create(eOperation: IOperation): EOperation
-    }
-
-    const EParameter: {
-      create(eParameter: IParameter): EParameter
-    }
-
-    const EAnnotation: {
-      create(eAnnotation: IAnnotation): EAnnotation
-    }
-
-    const EPackage: {
-      create(ePackage: IPackage): EPackage
+    const EPackage: EObjectFactory<IPackage> & {
       Registry: {
         getEPackage(nsURI: string): EPackage | undefined;
         register(ePackage: EPackage): void;
         ePackages(): EPackage[];
       };
     }
+    const EClass: EObjectFactory<IClass>
+    const EDataType: EObjectFactory<IDataType>
+    const EEnum: EObjectFactory<IEnum>
+    const EEnumLiteral: EObjectFactory<IEnumLiteral>
+    const EAttribute: EObjectFactory<IAttribute>
+    const EReference: EObjectFactory<IReference>
+    const EOperation: EObjectFactory<IOperation>
+    const EParameter: EObjectFactory<IParameter>
+    const EAnnotation: EObjectFactory<IAnnotation>
 
     const EcorePackage: EPackage; // EPackage
-    const EObject: EClass; // EClass
     const EString: EDataType; // EDataType
     const EInt: EDataType; // EDataType
     const EBoolean: EDataType; // EDataType
@@ -173,7 +144,6 @@ declare module 'ecore' {
     eStructuralFeatures: EStructuralFeature[];
     eOperations: EOperation[];
   }
-  export type EClass = EObject<IClass>;
 
   interface IDataType extends IClassifier {
   }
