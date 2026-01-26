@@ -4,7 +4,7 @@ import { BuiltinType, CompositeType, EnumType, isBuiltinType, isCompositeType, i
 import { propertyName } from "sosi-language/sosi-utils";
 import {
   nameString,
-  PropertyKind,
+  // PropertyKind,
   // DomainMapping as SosiDomainMapping
 } from "./model.js";
 
@@ -116,17 +116,16 @@ function buildCompositeTypeProperty(prop: Property, context: BuilderContext): EO
     } else if (isTypeDef(prop.type)) {
       propType = buildType(prop.type, context);
     }
-    var kind: PropertyKind = 'containment';
-    if (prop.kind == '@') {
-      kind = 'geometry';
-    } else if (prop.kind == '#') {
-      kind = 'id';
-    } else if (prop.kind == '^') {
-      kind = 'container';
-    } else if (prop.kind == '>') {
-      kind = 'association';
-    }
-    console.log("......property " + prop.name + ": " + kind);
+    // var kind: PropertyKind = 'containment';
+    // if (prop.kind == '@') {
+    //   kind = 'geometry';
+    // } else if (prop.kind == '#') {
+    //   kind = 'id';
+    // } else if (prop.kind == '^') {
+    //   kind = 'container';
+    // } else if (prop.kind == '>') {
+    //   kind = 'association';
+    // }
     return Ecore.EAttribute.create({
       name: string2SimpleName(prop.name),
       // description: prop.description,

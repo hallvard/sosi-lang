@@ -51,13 +51,10 @@ export const generateEcoreAction = async (fileName: string, options: EcoreGenera
 };
 
 export function generateEcore(spec: Specification, filePath: string, options: EcoreGenerateOptions): string {
-  console.dir(options, { depth: 6 });
   const resource = buildEcoreResource(spec);
-  console.log(resource.to());
-  const format = options.format ?? 'json';
-  console.log("Format: " + format);
-  const content = format === 'xmi' ? resource.to(Ecore.XMI, true) : resource.to();
-  console.log(content);
+  const content = (options.format ?? 'json') === 'xmi'
+      ? resource.to(Ecore.XMI, true)
+      : resource.to();
 
   const data = extractDestinationAndName(filePath, options.destination);
   const generatedFilePath = `${path.join(data.destination, data.name)}.${options.format ?? 'json'}`;
