@@ -1,0 +1,64 @@
+{
+  "eClass": "http://www.eclipse.org/emf/2002/Ecore#//EPackage",
+  "name": "nadag",
+  "nsURI": "ngu.nadag",
+  "nsPrefix": "nadag",
+  "eClassifiers": [
+    {
+      "eClass": "http://www.eclipse.org/emf/2002/Ecore#//EClass",
+      "name": "GeotekniskUnders",
+      "abstract": false,
+      "interface": false,
+      "eStructuralFeatures": [
+        {
+          "eClass": "http://www.eclipse.org/emf/2002/Ecore#//EAttribute",
+          "name": "identifikasjon",
+          "eType": {
+            "eClass": "http://www.eclipse.org/emf/2002/Ecore#//EClass"
+          },
+          "ordered": true,
+          "unique": false,
+          "lowerBound": 0,
+          "upperBound": -1,
+          "changeable": true,
+          "volatile": false,
+          "transient": false,
+          "unsettable": false,
+          "derived": false
+        },
+        {
+          "eClass": "http://www.eclipse.org/emf/2002/Ecore#//EAttribute",
+          "name": "område",
+          "eType": {
+            "eClass": "http://www.eclipse.org/emf/2002/Ecore#//EDataType"
+          },
+          "ordered": true,
+          "unique": false,
+          "lowerBound": 0,
+          "upperBound": -1,
+          "changeable": true,
+          "volatile": false,
+          "transient": false,
+          "unsettable": false,
+          "derived": false
+        },
+        {
+          "eClass": "http://www.eclipse.org/emf/2002/Ecore#//EAttribute",
+          "name": "borehull",
+          "eType": {
+            "eClass": "http://www.eclipse.org/emf/2002/Ecore#//EClass"
+          },
+          "ordered": true,
+          "unique": false,
+          "lowerBound": 0,
+          "upperBound": -1,
+          "changeable": true,
+          "volatile": false,
+          "transient": false,
+          "unsettable": false,
+          "derived": false
+        }
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as url from 'node:url';
 import { SosiLanguageMetaData } from 'sosi-language';
-import { generatePlantumlAction } from './generator.js';
+import { generatePlantumlAction, generateEcoreAction } from './generator.js';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const packagePath = path.resolve(__dirname, '..', 'package.json');
@@ -32,6 +32,13 @@ export default function(): void {
         .option('-d, --destination <dir>', 'destination directory of generating')
         .description('generates Plantuml code corresponding to the types in our specification')
         .action(generatePlantumlAction);
+    program
+        .command('ecore')
+        .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
+        .option('-d, --destination <dir>', 'destination directory of generating')
+        .option('-fmt, --format <format>', 'output format (xmi or json)', 'json')
+        .description('generates an Ecore model corresponding to the types in our specification')
+        .action(generateEcoreAction);
 
     program.parse(process.argv);
 }

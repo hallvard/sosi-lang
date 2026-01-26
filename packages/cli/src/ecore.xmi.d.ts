@@ -1,6 +1,6 @@
 // https://github.com/emfjson/ecore.js
 
-declare module 'ecore' {
+declare module 'ecore/dist/ecore.xmi.js' {
 
   export namespace Ecore {
     

@@ -1,11 +1,11 @@
-import { Ecore, EModelElement, EObject } from "ecore";
-import { BuiltinType, CompositeType, DomainMapping, EnumType, isBuiltinType, isCompositeType, isEnumType, isNamespace, isOneOrMoreMultiplicity, isPropertyRef, isSomeMultiplicity, isTypeDef, isTypeRef, isZeroOrOneMultiplicity, Multiplicity, Property, Specification, Tag, TypeDef } from "sosi-language";
+/// <reference path="./ecore.d.ts" />
+import { Ecore, EObject, Resource } from "ecore";
+import { BuiltinType, CompositeType, EnumType, isBuiltinType, isCompositeType, isEnumType, isNamespace, isOneOrMoreMultiplicity, isPropertyRef, isSomeMultiplicity, isTypeDef, isTypeRef, isZeroOrOneMultiplicity, Multiplicity, Property, Specification, TypeDef } from "sosi-language";
 import { propertyName } from "sosi-language/sosi-utils";
 import {
   nameString,
   PropertyKind,
-  DomainMapping as SosiDomainMapping,
-  Tag as SosiTag
+  // DomainMapping as SosiDomainMapping
 } from "./model.js";
 
 interface BuilderContext {
@@ -20,7 +20,14 @@ function typeQname(type: TypeDef): string[] {
   return [parent.name, type.name];
 }
 
-export function buildPackage(spec: Specification): EObject {
+export function buildEcoreResource(spec: Specification): Resource {
+  var resourceSet = Ecore.ResourceSet.create();
+  var resource = resourceSet.create({ uri: spec.name });
+  resource.get('contents').add(buildEcorePackage(spec));
+  return resource;
+}
+
+export function buildEcorePackage(spec: Specification): EObject {
   const typeMap = new Map<string, EObject>();
   return Ecore.EPackage.create({
     nsURI: spec.name,
@@ -32,21 +39,21 @@ export function buildPackage(spec: Specification): EObject {
   });
 }
 
-function string2Qname(str: string): string[] {
-  return str.split('.');
-}
+// function string2Qname(str: string): string[] {
+//   return str.split('.');
+// }
 
 function string2SimpleName(str: string): string {
   const pos = str.lastIndexOf('.');
   return pos >= 0 ? str.substring(pos + 1) : str;
 }
 
-function addTagAnnotations(tags: Tag[], elt: EModelElement): void {
-  // return tags.map(tag => ({
-  //   name: string2Qname(tag.name),
-  //   value: tag.value ? tag.value.value : true
-  // }));
-}
+// function addTagAnnotations(tags: Tag[], elt: EModelElement): void {
+//   return tags.map(tag => ({
+//     name: string2Qname(tag.name),
+//     value: tag.value ? tag.value.value : true
+//   }));
+// }
 
 function buildType(type: TypeDef, context: BuilderContext): EObject {
   console.log("Processing type: " + nameString(typeQname(type)));
@@ -119,6 +126,7 @@ function buildCompositeTypeProperty(prop: Property, context: BuilderContext): EO
     } else if (prop.kind == '>') {
       kind = 'association';
     }
+    console.log("......property " + prop.name + ": " + kind);
     return Ecore.EAttribute.create({
       name: string2SimpleName(prop.name),
       // description: prop.description,
@@ -168,12 +176,12 @@ function buildBuiltinType(type: BuiltinType): EObject {
   return sosiType;
 }
 
-function buildDomainMappings(mappings: DomainMapping[]): SosiDomainMapping[] {
-  return mappings.map(mapping => ({
-      domain: string2Qname(mapping.domain),
-      target: string2Qname(mapping.target)
-  }));
-}
+// function buildDomainMappings(mappings: DomainMapping[]): SosiDomainMapping[] {
+//   return mappings.map(mapping => ({
+//       domain: string2Qname(mapping.domain),
+//       target: string2Qname(mapping.target)
+//   }));
+// }
 
 function buildEnumType(type: EnumType): EObject {
   const sosiType = Ecore.EEnum.create({

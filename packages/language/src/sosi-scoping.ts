@@ -1,12 +1,13 @@
 import { AstNode, AstNodeDescription, AstUtils, DefaultScopeComputation, DefaultScopeProvider, DocumentSegment, LangiumDocument, LocalSymbols, MultiMap, ReferenceInfo, Scope, stream, Stream, URI } from "langium";
-import { isNamespace, Namespace } from "./generated/ast.js";
+import { isCompositeType, isNamespace, isPropertyDef, Namespace } from "./generated/ast.js";
 import { typeName } from "./sosi-utils.js";
 
 export class SosiScopeComputation extends DefaultScopeComputation {
 
   /**
-   * Export the namespace itself and 
-   * the top-level types using their fully qualified name.
+   * Export the namespace itself,
+   * the top-level types using their fully qualified name and
+   * their properties.
    *
    * @param document The document to compute exports for
    * @returns The list of exported descriptions
@@ -19,6 +20,14 @@ export class SosiScopeComputation extends DefaultScopeComputation {
     for (const type of namespace.types) {
       const fqn = `${rootName}.${typeName(type)}`;
       exportedDescriptions.push(this.descriptions.createDescription(type, fqn, document));
+      if (isCompositeType(type)) {
+        for (const prop of type.properties) {
+          if (isPropertyDef(prop)) {
+            const propName = `${fqn}.${prop.name}`;
+            exportedDescriptions.push(this.descriptions.createDescription(prop, propName, document));
+          }
+        }
+      }
     }
     return exportedDescriptions;
   }
